@@ -22,6 +22,9 @@ data class Lexer(private val source: String) {
           "print" to PRINT,
           "fn" to FN,
           "return" to RETURN,
+          "and" to AND,
+          "or" to OR,
+          "class" to CLASS
       )
 
   fun tokens(): List<Token> {

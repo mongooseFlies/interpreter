@@ -2,6 +2,7 @@ import lang.Lexer
 import lang.Parser
 import lang.model.Token
 import lang.model.TokenType
+import lang.runtime.Ast
 import lang.runtime.Interpreter
 import lang.runtime.Resolver
 import lang.runtime.RuntimeError
@@ -42,6 +43,9 @@ private fun runLine(
     val tokens = lexer.tokens()
     val parser = Parser(tokens)
     val statements = parser.parse()
+    statements.forEach {
+        it.visit(Ast())
+    }
     resolver.resolve(statements)
     interpreter.interpret(statements)
 }

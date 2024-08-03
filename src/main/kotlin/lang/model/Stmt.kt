@@ -17,6 +17,8 @@ interface Stmt {
         fun visitForStmt(forStmt: For): Any?
 
         fun visitReturnStmt(returnStmt: ReturnStmt): Any?
+
+        fun visitClassStmt(classStmt: ClassStmt): Any?
     }
 
     fun visit(visitor: Visitor): Any?
@@ -77,4 +79,11 @@ data class ReturnStmt(
     val value: Expr?
 ) : Stmt {
     override fun visit(visitor: Stmt.Visitor) = visitor.visitReturnStmt(this)
+}
+
+data class ClassStmt(
+    val name: Token,
+    val methods: MutableList<Fn>
+) : Stmt {
+    override fun visit(visitor: Stmt.Visitor) = visitor.visitClassStmt(this)
 }

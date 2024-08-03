@@ -21,4 +21,12 @@ class Function(
         }
         return null
     }
+
+    fun bind(instance: Instance) : Function {
+        val env = Environment(enclosing = closure)
+        env.define("self", instance)
+        return Function(declaration, env)
+    }
+
+    override fun toString() = "<fn ${declaration.name.text}>"
 }

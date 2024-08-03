@@ -75,3 +75,13 @@ fn add(a, b, c) {
 let result = add(10, 20, 30)
 print result
 print add(1, 2, 3)
+
+print false and true //false
+print true or false //true
+
+class A {}
+
+print A // <class A>
+
+let a = A()
+print a // <instance a>

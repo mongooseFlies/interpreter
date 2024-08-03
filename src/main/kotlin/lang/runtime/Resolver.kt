@@ -83,6 +83,17 @@ class Resolver(
     returnStmt.value?.let {  resolve(it) }
   }
 
+  override fun visitClassStmt(classStmt: ClassStmt) {
+    define(classStmt.name)
+    declare(classStmt.name)
+
+    addScope()
+    for (method in classStmt.methods) {
+      resolveFn(method, FunctionType.METHOD)
+    }
+    removeScope()
+  }
+
   override fun visitBinaryExpr(binary: Binary) {
     resolve(binary.left)
     resolve(binary.right)
@@ -123,6 +134,11 @@ class Resolver(
     resolveLocal(expr, expr.name)
   }
 
+  override fun visitLogicalExpr(expr: Logical) {
+    resolve(expr.left)
+    resolve(expr.right)
+  }
+
   private fun declare(name: Token) {
     val scope = scopes.lastOrNull() ?: return
     if (scope.containsKey(name.text)) error(name, "Variable Already declared")
@@ -136,5 +152,6 @@ class Resolver(
 
 enum class FunctionType {
   NONE,
-  FUNCTION
+  FUNCTION,
+  METHOD
 }

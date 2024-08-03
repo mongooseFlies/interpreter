@@ -45,6 +45,12 @@ class Ast : Expr.Visitor, Stmt.Visitor {
     append("(ASSIGN (${expr.name} -> ${expr.value.visit(this@Ast)} )")
   }
 
+  override fun visitLogicalExpr(expr: Logical) = buildString {
+    append("(${expr.operator.text} -> ")
+    append("(${expr.left.visit(this@Ast)} ")
+    append("(${expr.right.visit(this@Ast)}) ")
+  }
+
 
   override fun visitExpressionStmt(stmt: Expression) {
     stmt.expr.visit(this)
@@ -99,5 +105,13 @@ class Ast : Expr.Visitor, Stmt.Visitor {
     append("(RETURN ")
     returnStmt.value?.let { append(it.visit(this@Ast)) }
     append(")")
+  }
+
+  override fun visitClassStmt(classStmt: ClassStmt): Any? = buildString {
+    append("(Class -> ${classStmt.name}")
+    append("(METHODS ==> (")
+    for (method in classStmt.methods)
+      append("${method.name} ")
+    append("))")
   }
 }

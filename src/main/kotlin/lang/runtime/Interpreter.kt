@@ -114,6 +114,17 @@ class Interpreter(
     return value
   }
 
+  override fun visitLogicalExpr(expr: Logical): Any? {
+    val left = eval(expr.left)
+
+    if (expr.operator.type == OR) {
+      if (isTruthy(left)) return left
+    } else {
+      if (!isTruthy(left)) return left
+    }
+    return eval(expr.right)
+  }
+
   private fun assertNumbers(left: Any?, right: Any?) {
     if (left !is Double || right !is Double) throw RuntimeError("Expect number")
   }
@@ -188,6 +199,18 @@ class Interpreter(
       eval(it)
     }
     throw Return(value)
+  }
+
+  override fun visitClassStmt(classStmt: ClassStmt): Any {
+    environment.define(classStmt.name.text, null)
+    val methods = mutableMapOf<String, Function>()
+    for (method in classStmt.methods) {
+      val func = Function(method, environment)
+      methods[method.name.text] = func
+    }
+    return Class(classStmt.name.text, methods).also {
+      environment.assign(classStmt.name.text, it)
+    }
   }
 
   fun resolve(expr: Expr, depth: Int) {

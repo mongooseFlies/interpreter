@@ -6,6 +6,8 @@ enum class TokenType {
     PLUS,
     MINUS,
     ASTERISK,
+    OR,
+    AND,
 
     // Comparison
     GT,
@@ -47,4 +49,5 @@ enum class TokenType {
     EOF,
     LINE,
     RETURN,
+    CLASS,
 }

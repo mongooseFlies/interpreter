@@ -29,12 +29,24 @@ class Parser(
       return when {
         match(LET) -> varDeclaration()
         match(FN) -> function()
+        match(CLASS) -> classDeclaration()
         else -> statement()
       }
     } catch (_: ParseException) {
       synchronize()
       return null
     }
+  }
+
+  private fun classDeclaration(): Stmt {
+    val className = consume("expect class name", IDENTIFIER)
+    consume("expect '{' after class name", LEFT_BRACE)
+    val methods = mutableListOf<Fn>()
+    while(!check(RIGHT_BRACE) && !isAtEnd()) {
+      methods += function() as Fn
+    }
+    consume("expect '}' after class name", RIGHT_BRACE)
+    return ClassStmt(className, methods)
   }
 
   private fun ifStmt(): Stmt {
@@ -142,7 +154,7 @@ class Parser(
   private fun expression() = assignment()
 
   private fun assignment(): Expr {
-    val expr = equality()
+    val expr = or()
     if (match(EQ)) {
       val eq = previous()
       val right = assignment()
@@ -153,6 +165,24 @@ class Parser(
       }
     }
     return expr
+  }
+
+  private fun or(): Expr {
+    val expr = and()
+    return if (match(OR)) {
+      val operator = previous()
+      val right = and()
+      Logical(expr, operator, right)
+    } else expr
+  }
+
+  private fun and(): Expr {
+    val expr = equality()
+    return if (match(AND)) {
+      val operator = previous()
+      val right = equality()
+      Logical(expr, operator, right)
+    } else expr
   }
 
   private fun equality(): Expr {
@@ -227,8 +257,10 @@ class Parser(
           expect("Expect right paren", RIGHT_PAREN)
           Grouping(expr)
         }
+        match(FALSE) -> Literal(false)
+        match(TRUE) -> Literal(true)
         match(IDENTIFIER) -> Var(previous())
-        else -> throw error("Compile error ...", tokens[currentInd])
+        else -> throw error("Compile error! ", tokens[currentInd])
       }
 
   private fun expect(message: String, vararg types: TokenType) {

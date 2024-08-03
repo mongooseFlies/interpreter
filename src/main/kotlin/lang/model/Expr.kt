@@ -15,6 +15,8 @@ interface Expr {
         fun visitCallExpr(expr: Call): Any?
 
         fun visitAssignExpr(expr: Assign): Any?
+
+        fun visitLogicalExpr(expr: Logical): Any?
     }
 
     fun visit(visitor: Visitor): Any?
@@ -67,4 +69,12 @@ data class Call(
     val arguments: MutableList<Expr> = mutableListOf(),
 ) : Expr {
     override fun visit(visitor: Expr.Visitor) = visitor.visitCallExpr(this)
+}
+
+data class Logical(
+    val left: Expr,
+    val operator: Token,
+    val right: Expr
+) : Expr {
+    override fun visit(visitor: Expr.Visitor) = visitor.visitLogicalExpr(this)
 }
