@@ -1,4 +1,4 @@
-## Dynamic Programming Language 
+## Tiny Dynamic Programming Language 
 
 tiny dynamically-typed programming language 
 
