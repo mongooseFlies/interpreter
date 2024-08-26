@@ -10,7 +10,12 @@ data class Instance(
     fun get(name: Token): Any? {
         if (fields.containsKey(name.text)) return fields[name.text]
         val method = klass.getMethod(name.text)
-        if (method != null) return method.bind(this)
-        throw RuntimeError("Undefined property", name)
+        method?.let {
+            return method.bind(this)
+        } ?: throw RuntimeError("Undefined property", name)
+    }
+
+    fun set(name: Token, value: Any?) {
+        fields[name.text] = value
     }
 }

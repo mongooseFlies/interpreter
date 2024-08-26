@@ -17,6 +17,12 @@ interface Expr {
         fun visitAssignExpr(expr: Assign): Any?
 
         fun visitLogicalExpr(expr: Logical): Any?
+
+        fun visitGetExpr(expr: Get): Any?
+
+        fun visitSetExpr(expr: Set): Any?
+
+        fun visitSelfExpr(expr: Self): Any?
     }
 
     fun visit(visitor: Visitor): Any?
@@ -77,4 +83,25 @@ data class Logical(
     val right: Expr
 ) : Expr {
     override fun visit(visitor: Expr.Visitor) = visitor.visitLogicalExpr(this)
+}
+
+data class Get(
+    val name: Token,
+    val obj: Expr
+) : Expr {
+    override fun visit(visitor: Expr.Visitor): Any? = visitor.visitGetExpr(this)
+}
+
+data class Set(
+    val name: Token,
+    val obj: Expr,
+    val value: Expr
+) : Expr {
+    override fun visit(visitor: Expr.Visitor): Any? = visitor.visitSetExpr(this)
+}
+
+data class Self(
+    val name: Token
+) : Expr {
+    override fun visit(visitor: Expr.Visitor) = visitor.visitSelfExpr(this)
 }

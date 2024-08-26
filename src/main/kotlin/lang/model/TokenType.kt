@@ -50,4 +50,5 @@ enum class TokenType {
     LINE,
     RETURN,
     CLASS,
+    SELF
 }

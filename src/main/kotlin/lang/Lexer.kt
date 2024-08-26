@@ -24,7 +24,8 @@ data class Lexer(private val source: String) {
           "return" to RETURN,
           "and" to AND,
           "or" to OR,
-          "class" to CLASS
+          "class" to CLASS,
+          "self" to SELF
       )
 
   fun tokens(): List<Token> {
@@ -65,10 +66,11 @@ data class Lexer(private val source: String) {
       }
       ',' -> addToken(COMMA)
       ';' -> addToken(SEMICOLON)
+      '.' -> addToken(DOT)
       '\n', '\r' -> {
-        //        if (tokens.isNotEmpty() && tokens[currentInd - 1].type != LINE)
         addToken(LINE)
         line++
+//        while (match('\n', '\r')) line++
       }
       '\t', ' ' -> {}
       in '0'..'9' -> number()
@@ -96,6 +98,8 @@ data class Lexer(private val source: String) {
       else -> false
     }
   }
+
+//  private fun match(vararg expectedChars: Char) = expectedChars.any() {match(it)}
 
   private fun isAlphaNumeric(char: Char) = isAlpha(char) || isDigit(char)
 

@@ -85,3 +85,31 @@ print A // <class A>
 
 let a = A()
 print a // <instance a>
+
+class Chocolate {
+  eat() {
+    print "Yum Yummy"
+  }
+}
+
+Chocolate().eat()
+
+class B {}
+
+fn notClassFunction(argument) {
+  print "notClassFunction called with argument [" + argument + "]"
+}
+
+let b = B()
+b.function = notClassFunction
+b.function("argument")
+
+class Person {
+  printName() {
+      print self.name
+  }
+}
+
+let rust = Person()
+rust.name = "RUST"
+rust.printName()
