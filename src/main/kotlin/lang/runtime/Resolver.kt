@@ -3,13 +3,19 @@ package lang.runtime
 import error
 import lang.model.*
 import lang.model.Grouping
+import lang.model.Set
 
 typealias Scope = ArrayDeque<MutableMap<String, Boolean>>
+
+enum class ClassType {
+  NONE, CLASS
+}
 
 class Resolver(
   private val interpreter: Interpreter,
   private var scopes: Scope = Scope(),
-  private var currentFunction: FunctionType = FunctionType.NONE
+  private var currentFunction: FunctionType = FunctionType.NONE,
+  private var currentClass: ClassType = ClassType.NONE,
 ) : Stmt.Visitor, Expr.Visitor {
 
   fun resolve(statements: List<Stmt>) = statements.forEach { resolve(it) }
@@ -84,14 +90,20 @@ class Resolver(
   }
 
   override fun visitClassStmt(classStmt: ClassStmt) {
+    val enclosingClass = currentClass
+    currentClass = ClassType.CLASS
+
     define(classStmt.name)
     declare(classStmt.name)
 
     addScope()
+    scopes.lastOrNull()?.put("self", true)
     for (method in classStmt.methods) {
       resolveFn(method, FunctionType.METHOD)
     }
     removeScope()
+
+    currentClass = enclosingClass
   }
 
   override fun visitBinaryExpr(binary: Binary) {
@@ -137,6 +149,20 @@ class Resolver(
   override fun visitLogicalExpr(expr: Logical) {
     resolve(expr.left)
     resolve(expr.right)
+  }
+
+  override fun visitGetExpr(expr: Get) {
+    resolve(expr.obj)
+  }
+
+  override fun visitSetExpr(expr: Set) {
+    resolve(expr.obj)
+    resolve(expr.value)
+  }
+
+  override fun visitSelfExpr(expr: Self) {
+    if (currentClass == ClassType.NONE) error(expr.name, "can't use 'self' outside of a class")
+    resolveLocal(expr, expr.name.text)
   }
 
   private fun declare(name: Token) {

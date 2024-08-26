@@ -1,6 +1,7 @@
 package lang.runtime
 
 import lang.model.*
+import lang.model.Set
 import lang.model.TokenType.*
 import runtimeErr
 
@@ -125,6 +126,25 @@ class Interpreter(
     return eval(expr.right)
   }
 
+  override fun visitGetExpr(expr: Get): Any? {
+    val obj = eval(expr.obj)
+    if (obj is Instance)
+      return obj.get(expr.name)
+    throw RuntimeError("expect instance", expr.name)
+  }
+
+  override fun visitSetExpr(expr: Set) : Any? {
+    val obj = eval(expr.obj)
+    if (obj !is Instance) {
+      throw RuntimeError("is not an instance", expr.name)
+    }
+    val value = eval(expr.value)
+    obj.set(expr.name, value)
+    return value
+  }
+
+  override fun visitSelfExpr(expr: Self) = lookUpVar(expr.name, expr)
+
   private fun assertNumbers(left: Any?, right: Any?) {
     if (left !is Double || right !is Double) throw RuntimeError("Expect number")
   }
@@ -205,8 +225,7 @@ class Interpreter(
     environment.define(classStmt.name.text, null)
     val methods = mutableMapOf<String, Function>()
     for (method in classStmt.methods) {
-      val func = Function(method, environment)
-      methods[method.name.text] = func
+      methods[method.name.text] = Function(method, environment)
     }
     return Class(classStmt.name.text, methods).also {
       environment.assign(classStmt.name.text, it)

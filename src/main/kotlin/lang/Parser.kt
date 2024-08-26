@@ -42,8 +42,10 @@ class Parser(
     val className = consume("expect class name", IDENTIFIER)
     consume("expect '{' after class name", LEFT_BRACE)
     val methods = mutableListOf<Fn>()
+    skipNewLines()
     while(!check(RIGHT_BRACE) && !isAtEnd()) {
       methods += function() as Fn
+      skipNewLines()
     }
     consume("expect '}' after class name", RIGHT_BRACE)
     return ClassStmt(className, methods)
@@ -72,7 +74,7 @@ class Parser(
     }
     expect("expect ')' after params", RIGHT_PAREN)
     expect("expect '{'", LEFT_BRACE)
-
+    skipNewLines()
     val funBody = block()
     return Fn(name, params, funBody)
   }
@@ -158,10 +160,16 @@ class Parser(
     if (match(EQ)) {
       val eq = previous()
       val right = assignment()
-      if (expr is Var) {
-        return Assign(expr.token.text, right)
-      } else {
-        error("invalid assignment type", eq)
+      when (expr) {
+        is Var -> {
+          return Assign(expr.token.text, right)
+        }
+        is Get -> {
+          return Set(expr.name, expr.obj, right)
+        }
+        else -> {
+          error("invalid assignment type", eq)
+        }
       }
     }
     return expr
@@ -234,15 +242,24 @@ class Parser(
 
   private fun call(): Expr {
     var expr = primary()
-    if (match(LEFT_PAREN)) {
-      val arguments = mutableListOf<Expr>()
-      do {
-        if (!check(RIGHT_PAREN)) {
-          arguments += expression()
-        }
-      } while (match(COMMA))
-      expect("Expect ')' after arguments", RIGHT_PAREN)
-      expr = Call(expr, arguments)
+    while(true) {
+      when {
+          match(LEFT_PAREN) -> {
+            val arguments = mutableListOf<Expr>()
+            do {
+              if (!check(RIGHT_PAREN)) {
+                arguments += expression()
+              }
+            } while (match(COMMA))
+            expect("Expect ')' after arguments", RIGHT_PAREN)
+            expr = Call(expr, arguments)
+          }
+          match(DOT) -> {
+            val name = consume("Expect name after '.'", IDENTIFIER)
+            expr = Get(name, expr)
+          }
+          else -> break
+      }
     }
     return expr
   }
@@ -260,6 +277,7 @@ class Parser(
         match(FALSE) -> Literal(false)
         match(TRUE) -> Literal(true)
         match(IDENTIFIER) -> Var(previous())
+        match(SELF) -> Self(previous())
         else -> throw error("Compile error! ", tokens[currentInd])
       }
 

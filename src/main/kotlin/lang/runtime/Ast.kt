@@ -2,6 +2,7 @@ package lang.runtime
 
 import kotlin.text.buildString
 import lang.model.*
+import lang.model.Set
 
 class Ast : Expr.Visitor, Stmt.Visitor {
   override fun visitBinaryExpr(binary: Binary): String {
@@ -49,6 +50,18 @@ class Ast : Expr.Visitor, Stmt.Visitor {
     append("(${expr.operator.text} -> ")
     append("(${expr.left.visit(this@Ast)} ")
     append("(${expr.right.visit(this@Ast)}) ")
+  }
+
+  override fun visitGetExpr(expr: Get) = buildString {
+    append("(GET -> ${expr.name} => ${expr.obj.visit(this@Ast)})")
+  }
+
+  override fun visitSetExpr(expr: Set) = buildString {
+    append("(SET -> ${expr.name} -> ${expr.obj.visit(this@Ast)})")
+  }
+
+  override fun visitSelfExpr(expr: Self): Any? {
+    TODO("Not yet implemented")
   }
 
 
