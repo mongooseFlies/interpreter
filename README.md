@@ -1,9 +1,9 @@
 ## Tiny Dynamic Programming Language 
 
-tiny dynamically-typed programming language 
+dynamically-typed programming language 
 
 > [!WARNING]
-> Personal Project - Not ready for production
+> Personal Project - to explore how interpreters work
 
 ### Features
 
