@@ -145,6 +145,14 @@ class Interpreter(
 
   override fun visitSelfExpr(expr: Self) = lookUpVar(expr.name, expr)
 
+  override fun visitSuperExpr(expr: Super): Any? {
+    val distance = locals[expr]!!
+    val superClass = environment.getAt(distance, "super") as Class?
+    val obj = environment.getAt(distance - 1, "self") as Instance?
+    val method = superClass?.getMethod(expr.method.text) ?: throw RuntimeError("Undefined property ${expr.method.text}", expr.method)
+    return obj?.let { method.bind(it) }
+  }
+
   private fun assertNumbers(left: Any?, right: Any?) {
     if (left !is Double || right !is Double) throw RuntimeError("Expect number")
   }
@@ -222,14 +230,34 @@ class Interpreter(
   }
 
   override fun visitClassStmt(classStmt: ClassStmt): Any {
+
+    val superClass = classStmt.superClass?.let {
+      val superClass = it.visit(this)
+      if (superClass !is Class) {
+        throw RuntimeError("Superclass must be a class", it.token)
+      }
+      superClass
+    }
+
     environment.define(classStmt.name.text, null)
+
+    superClass?.let {
+      environment = Environment(enclosing = environment)
+      environment.define("super", superClass)
+    }
+
     val methods = mutableMapOf<String, Function>()
     for (method in classStmt.methods) {
-      methods[method.name.text] = Function(method, environment)
+      methods[method.name.text] = Function(method, environment, method.name.text == "init")
     }
-    return Class(classStmt.name.text, methods).also {
-      environment.assign(classStmt.name.text, it)
-    }
+
+    val klass = Class(classStmt.name.text, methods, superClass)
+    superClass?.let { environment = environment.enclosing!! }
+
+
+    environment.assign(classStmt.name.text, klass)
+
+    return klass
   }
 
   fun resolve(expr: Expr, depth: Int) {

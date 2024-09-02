@@ -4,7 +4,8 @@ import lang.model.Fn
 
 class Function(
     private val declaration: Fn,
-    private val closure: Environment
+    private val closure: Environment,
+    private val isInitializer: Boolean = false
 ) : Callable {
     override fun call(
         interpreter: Interpreter,
@@ -17,7 +18,9 @@ class Function(
         try {
             interpreter.executeBlock(declaration.body, environment)
         } catch (returnValue: Return) {
-            return returnValue.value
+            return if (isInitializer)
+                     closure.getAt(0, "self")
+                   else returnValue.value
         }
         return null
     }
@@ -25,7 +28,7 @@ class Function(
     fun bind(instance: Instance) : Function {
         val env = Environment(enclosing = closure)
         env.define("self", instance)
-        return Function(declaration, env)
+        return Function(declaration, env, isInitializer)
     }
 
     override fun toString() = "<fn ${declaration.name.text}>"

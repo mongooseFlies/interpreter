@@ -25,7 +25,8 @@ data class Lexer(private val source: String) {
           "and" to AND,
           "or" to OR,
           "class" to CLASS,
-          "self" to SELF
+          "self" to SELF,
+          "super" to SUPER
       )
 
   fun tokens(): List<Token> {
@@ -48,6 +49,7 @@ data class Lexer(private val source: String) {
       '/' -> if (match('/')) while (!isAtEnd() && peek() != '\n') advance() else addToken(SLASH)
       '*' -> addToken(ASTERISK)
       '"' -> string()
+      ':' -> addToken(COLON)
       '<' -> {
         val type = if (match('=')) LTE else LT
         addToken(type)

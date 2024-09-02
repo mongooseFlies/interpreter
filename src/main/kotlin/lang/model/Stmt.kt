@@ -83,6 +83,7 @@ data class ReturnStmt(
 
 data class ClassStmt(
     val name: Token,
+    val superClass: Var?,
     val methods: MutableList<Fn>
 ) : Stmt {
     override fun visit(visitor: Stmt.Visitor) = visitor.visitClassStmt(this)

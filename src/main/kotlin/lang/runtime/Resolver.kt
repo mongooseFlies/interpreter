@@ -8,7 +8,7 @@ import lang.model.Set
 typealias Scope = ArrayDeque<MutableMap<String, Boolean>>
 
 enum class ClassType {
-  NONE, CLASS
+  NONE, CLASS, SUBCLASS
 }
 
 class Resolver(
@@ -86,7 +86,12 @@ class Resolver(
     if (currentFunction == FunctionType.NONE) {
       error(returnStmt.keyword, "Can't return from top-level code")
     }
-    returnStmt.value?.let {  resolve(it) }
+    returnStmt.value?.let {
+      if (currentFunction == FunctionType.INITIALIZER) {
+        error(returnStmt.keyword, "Can't return from initializer")
+      }
+      resolve(it)
+    }
   }
 
   override fun visitClassStmt(classStmt: ClassStmt) {
@@ -96,12 +101,24 @@ class Resolver(
     define(classStmt.name)
     declare(classStmt.name)
 
+    classStmt.superClass?.let {
+      if (classStmt.name.text == it.token.text)
+        error(classStmt.name, "Class can't inherit itself")
+      addScope()
+      scopes.lastOrNull()?.put("super", true)
+      currentClass = ClassType.SUBCLASS
+      resolve(it)
+    }
+
     addScope()
     scopes.lastOrNull()?.put("self", true)
     for (method in classStmt.methods) {
-      resolveFn(method, FunctionType.METHOD)
+      val declaration = if (method.name.text == "init") FunctionType.INITIALIZER else FunctionType.METHOD
+      resolveFn(method, declaration)
     }
     removeScope()
+
+    classStmt.superClass?.let { removeScope() }
 
     currentClass = enclosingClass
   }
@@ -165,6 +182,12 @@ class Resolver(
     resolveLocal(expr, expr.name.text)
   }
 
+  override fun visitSuperExpr(expr: Super) {
+    if (currentClass == ClassType.NONE) error(expr.name, "Can't use super keyword outside class")
+    else if (currentClass != ClassType.SUBCLASS) error(expr.name, "Can't user super keyword in a class with no superclass")
+    resolveLocal(expr, expr.name.text)
+  }
+
   private fun declare(name: Token) {
     val scope = scopes.lastOrNull() ?: return
     if (scope.containsKey(name.text)) error(name, "Variable Already declared")
@@ -179,5 +202,6 @@ class Resolver(
 enum class FunctionType {
   NONE,
   FUNCTION,
-  METHOD
+  METHOD,
+  INITIALIZER
 }

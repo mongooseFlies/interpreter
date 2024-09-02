@@ -29,6 +29,7 @@ enum class TokenType {
     COMMA,
     SEMICOLON,
     BANG,
+    COLON,
 
     // Primary types
     BOOL,
@@ -50,5 +51,6 @@ enum class TokenType {
     LINE,
     RETURN,
     CLASS,
-    SELF
+    SELF,
+    SUPER
 }
