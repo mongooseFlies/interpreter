@@ -1,9 +1,9 @@
 ## Tiny Dynamic Programming Language 
 
-tiny dynamically-typed programming language 
+dynamically-typed programming language 
 
 > [!WARNING]
-> Personal Project - Not ready for production
+> Personal Project - to explore how interpreters work
 
 ### Features
 
@@ -23,7 +23,7 @@ tiny dynamically-typed programming language
 * Run an entire source file
 
 ### **Example:**
-see demo file [here](demo.txt)
+see demo file [here](demo)
 
 ## TODO list
 
@@ -32,27 +32,5 @@ see demo file [here](demo.txt)
 * [x] Closures
 * [x] Classes
 * [x] Methods
-* [ ] Inheritance
+* [x] Inheritance
 
-## Grammar
-
-    expression |> literal    |
-                  binary     |
-                  unary      |
-                  grouping   |
-
-    literal   -> NUMBER | STRING | 'false' | 'true' | 'nil'
-    binary    -> expression operator expression
-    unary     -> operator expression
-    grouping  -> '('  expression ')'
-    operator  -> '==' | '>=' | '<' | '<=' | '+' | '-' | '*' | '/' | '!=' |
-
-    expression => or
-    or         => and
-    and        => equality
-    equality   => comparison ('==' | '!=') comparison
-    comparison => term ('+' | '-') term
-    term       => factor ('*' | '/') factor
-    factor     => primary
-    primary    => STRING | NUMBER | 'false' | 'true' | nil | grouping
-    grouping     => '(' expression ')'
