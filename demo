@@ -105,11 +105,35 @@ b.function = notClassFunction
 b.function("argument")
 
 class Person {
+  init() {
+    self.name = "human"
+    self.age = 30
+  }
   printName() {
       print self.name
   }
 }
 
 let rust = Person()
+//rust.name = "RUST"
+rust.printName() // human
+print rust.age // 30
+
 rust.name = "RUST"
-rust.printName()
+rust.printName() // RUST
+
+// Inheritance
+class Meal {
+  cook() {
+    print "cooking..."
+  }
+}
+
+class Meat : Meal {
+  cook() {
+    super.cook()
+    print "GRILLED MEAT with VEGGIES"
+  }
+}
+
+Meat().cook()

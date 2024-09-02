@@ -64,6 +64,10 @@ class Ast : Expr.Visitor, Stmt.Visitor {
     TODO("Not yet implemented")
   }
 
+  override fun visitSuperExpr(expr: Super): Any? {
+    TODO("Not yet implemented")
+  }
+
 
   override fun visitExpressionStmt(stmt: Expression) {
     stmt.expr.visit(this)

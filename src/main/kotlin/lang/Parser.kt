@@ -40,6 +40,11 @@ class Parser(
 
   private fun classDeclaration(): Stmt {
     val className = consume("expect class name", IDENTIFIER)
+    var superClass: Var? = null
+    if(match(COLON)) {
+      val token = consume("expect superclass name", IDENTIFIER)
+      superClass = Var(token)
+    }
     consume("expect '{' after class name", LEFT_BRACE)
     val methods = mutableListOf<Fn>()
     skipNewLines()
@@ -48,7 +53,7 @@ class Parser(
       skipNewLines()
     }
     consume("expect '}' after class name", RIGHT_BRACE)
-    return ClassStmt(className, methods)
+    return ClassStmt(className, superClass, methods)
   }
 
   private fun ifStmt(): Stmt {
@@ -278,6 +283,12 @@ class Parser(
         match(TRUE) -> Literal(true)
         match(IDENTIFIER) -> Var(previous())
         match(SELF) -> Self(previous())
+        match(SUPER) -> {
+          val keyword = previous()
+          consume("Expect dot after super keyword", DOT)
+          val method = consume("Expect superclass method name", IDENTIFIER)
+          Super(keyword, method)
+        }
         else -> throw error("Compile error! ", tokens[currentInd])
       }
 

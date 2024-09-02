@@ -23,6 +23,8 @@ interface Expr {
         fun visitSetExpr(expr: Set): Any?
 
         fun visitSelfExpr(expr: Self): Any?
+
+        fun visitSuperExpr(expr: Super): Any?
     }
 
     fun visit(visitor: Visitor): Any?
@@ -104,4 +106,11 @@ data class Self(
     val name: Token
 ) : Expr {
     override fun visit(visitor: Expr.Visitor) = visitor.visitSelfExpr(this)
+}
+
+data class Super(
+    val name: Token,
+    val method: Token
+) : Expr {
+    override fun visit(visitor: Expr.Visitor) = visitor.visitSuperExpr(this)
 }

@@ -2,7 +2,7 @@ package lang.runtime
 
 data class Environment(
     private val values: MutableMap<String, Any?> = mutableMapOf(),
-    private val enclosing: Environment? = null
+    val enclosing: Environment? = null
 ) {
     fun define(
         name: String,
