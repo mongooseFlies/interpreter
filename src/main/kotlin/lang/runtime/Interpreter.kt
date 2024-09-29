@@ -4,12 +4,23 @@ import lang.model.*
 import lang.model.Set
 import lang.model.TokenType.*
 import runtimeErr
+import kotlin.time.measureTime
 
 class Interpreter(
     private val globals: Environment = Environment(),
     private var environment: Environment = globals,
     private val locals: MutableMap<Expr, Int> = mutableMapOf()
 ) : Expr.Visitor, Stmt.Visitor {
+
+  init {
+      val time = object : Callable {
+        override fun call(interpreter: Interpreter, arguments: List<Any?>): Any {
+          return System.currentTimeMillis().toDouble()
+        }
+        override fun toString() = "<fn native/>"
+      }
+      globals.define("time", time)
+  }
 
   fun interpret(statements: List<Stmt>) = try {
     statements.forEach { it.visit(this) }
