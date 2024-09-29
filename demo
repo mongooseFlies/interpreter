@@ -137,3 +137,19 @@ class Meat : Meal {
 }
 
 Meat().cook()
+
+
+//fib
+fn fib(n) {
+    if n < 2 {
+       return n
+    }
+    return fib(n-1) + fib(n-2)
+}
+
+let before = time()
+print fib(40)
+let after = time()
+let duration = after - before
+
+print "Duration = " + duration + "ms"
