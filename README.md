@@ -24,6 +24,7 @@ dynamically-typed programming language
 
 ### **Example:**
 see demo file [here](demo)
+code snippet ![Logo](CodeSnippet.png)
 
 ## TODO list
 
